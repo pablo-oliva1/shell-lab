@@ -12,6 +12,10 @@ The goal is to build and sharpen skills in shell environments, create useful too
 
 ### In Bash shell
 
+#### Maintenance
+
+- [mantenimiento_apt.sh](mantenimiento_apt.sh). Menu to check, save, update and clean apt and Flatpak packages. Removes orphaned packages and cleans obsolete packages from the cache.
+
 #### Disks
 
 - [Disk repair](reparar-disco.md). Repair of an HDD that fails to mount on the system.
@@ -29,6 +33,8 @@ The goal is to build and sharpen skills in shell environments, create useful too
 - Linux.
 - Bash.
 - Fish.
+- Apt.
+- Flatpak.
 
 ### References
 
