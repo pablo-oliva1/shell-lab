@@ -1,27 +1,22 @@
 # shell-lab
 
-[English](README.en.md)
+
 
 Una colección de prácticas, pruebas y ejercicios con shell en Linux.
 
-El objetivo es adquirir y perfeccionar habilidades en entornos shell, crear herramientas útiles y documentar las lecciones clave del proceso.
+El objetivo es adquirir y perfeccionar habilidades en entornos shell, crear herramientas útiles y documentar las lecciones clave del proceso. [English](README.en.md)
 
 ## Prácticas
 
 ### En bash shell
 
-#### Mantenimiento
-
-- [mantenimiento_apt.sh](mantenimiento_apt.sh). Menú para consultar, guardar, actualizar y limpiar paquetes de apt y Flatpak. Elimina paquetes huérfanos y limpia el caché de paquetes obsoletos.
-
-#### Discos
+- [mantenimiento_apt.sh](mantenimiento_apt.sh). Script para consultar, guardar, actualizar y limpiar paquetes de apt y Flatpak. Elimina paquetes huérfanos y limpia el caché de paquetes obsoletos.
 
 - [Reparación de disco](reparar-disco.md). Reparación de disco HDD que presenta problemas a la hora de montarlo en el sistema.
+
 - [Particionado simple](particionado-simple.md). Particionado de un disco de 2TB con una partición formateada en ext4 y otra encriptada con LUKS.
 
 ### En fish shell
-
-#### Funciones
 
 - [check_actualizaciones.fish](check_actualizaciones.fish). Pequeña función que permite comprobar todas las actualizaciones disponibles en Pacman, Paru, Yay y Flatpak con un único comando (`comprobar`).
 
