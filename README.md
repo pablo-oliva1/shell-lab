@@ -14,7 +14,7 @@ El objetivo es adquirir y perfeccionar habilidades en entornos shell, crear herr
 
 - [Particionado simple](particionado-simple.md). Particionado de un disco de 2TB con una partición formateada en ext4 y otra encriptada con LUKS.
 
-- [Usuarios y permisos](usuarios.md): ejercicio de administración básica de usuarios, grupos, permisos y paquetes. Se proponen 6 usuarios (1 responsable, 2 contables, 2 desarrolladores, 1 auditor), se configuran grupos, permisos y accesos.
+- [Usuarios y permisos](usuarios.md). Ejercicio de administración básica de usuarios, grupos, permisos y paquetes. Se proponen 6 usuarios (1 responsable, 2 contables, 2 desarrolladores, 1 auditor), se configuran grupos, permisos y accesos.
 
 ### En fish shell
 
