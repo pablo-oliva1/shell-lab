@@ -114,6 +114,7 @@ Se añade a `sudo` y se comprueba:
 
 ```bash
 admn@ejercicio:~$ sudo adduser berta sudo
+
 admn@ejercicio:~$ su - berta
 Contraseña: 
 
@@ -256,6 +257,7 @@ Se elige el clásico `hello`. Se comprueba primero que no está instalado:
 ```bash
 berta@ejercicio:~$ hello
 -bash: hello: orden no encontrada
+
 berta@ejercicio:~$ apt list --installed hello
 ```
 
@@ -272,7 +274,9 @@ hello/stable 2.10-5 amd64
   example package based on GNU hello
 ```
 
-Se consulta la información del paquete:
+### Consultar información del paquete e instalar
+
+Se consulta:
 
 ```bash
 berta@ejercicio:~$ apt show hello
@@ -322,9 +326,11 @@ Se comprueba que está instalado:
 ```bash
 berta@ejercicio:~$ apt list --installed hello
 hello/stable,now 2.10-5 amd64 [instalado]
+
 berta@ejercicio:~$ hello
 ¡Hola mundo!
 ```
+### Comprobación y actualización
 
 Se comprueba si hay versión nueva delpaquete:
 
@@ -340,6 +346,8 @@ hello ya está en su versión más reciente (2.10-5).
 Summary:
   Upgrading: 0, Installing: 0, Removing: 0, Not Upgrading: 0
 ```
+
+### Eliminación
 
 Se elimina `hello` y sus archivos de configuración:
 
@@ -363,5 +371,532 @@ Comprobar que ya no está:
 ```bash
 berta@ejercicio:~$ hello
 -bash: /usr/bin/hello: No existe el fichero o el directorio
+
 berta@ejercicio:~$ apt list --installed hello
+```
+
+## Usuarios y grupos
+
+### Creación grupos:
+
+```bash
+berta@ejercicio:~$ sudo groupadd contabilidad
+
+berta@ejercicio:~$ sudo groupadd desarrollo
+
+berta@ejercicio:~$ sudo groupadd empleados
+```
+
+Para comprobarlo puede usarse el comando de búsqueda de entradas de la bases de datos del sistema:
+
+```bash
+berta@ejercicio:~$ getent group contabilidad desarrollo empleados
+contabilidad:x:1002:
+desarrollo:x:1003:
+empleados:x:1004:
+```
+
+### Creación de usuarios
+
+Se crean en secuencia (salida recortada):
+
+```bash
+berta@ejercicio:~$ sudo adduser ana
+
+berta@ejercicio:~$ sudo adduser jorge
+
+berta@ejercicio:~$ sudo adduser luis
+
+berta@ejercicio:~$ sudo adduser marga
+
+berta@ejercicio:~$ sudo adduser auditor
+```
+
+Se comprueba:
+
+```bash
+berta@ejercicio:~$ getent passwd ana jorge luis marga auditor
+ana:x:1005:1005:Ana,2,,:/home/ana:/bin/bash
+jorge:x:1006:1006:Jorge,3,,:/home/jorge:/bin/bash
+luis:x:1007:1007:Luis,4,,:/home/luis:/bin/bash
+marga:x:1008:1008:Marga,5,,:/home/marga:/bin/bash
+auditor:x:1009:1009:Auditor,6,,:/home/auditor:/bin/bash
+```
+
+### Agregar usuarios a grupos
+
+```bash
+berta@ejercicio:~$ sudo adduser ana contabilidad
+
+berta@ejercicio:~$ sudo adduser ana empleados
+
+berta@ejercicio:~$ sudo adduser jorge contabilidad
+
+berta@ejercicio:~$ sudo adduser jorge empleados
+
+berta@ejercicio:~$ sudo adduser luis desarrollo
+
+berta@ejercicio:~$ sudo adduser luis empleados
+
+berta@ejercicio:~$ sudo adduser marga desarrollo
+
+berta@ejercicio:~$ sudo adduser marga empleados
+
+berta@ejercicio:~$ sudo adduser berta empleados
+```
+
+Se comprueba:
+
+```bash
+berta@ejercicio:~$ getent group contabilidad
+contabilidad:x:1002:ana,jorge
+
+berta@ejercicio:~$ getent group desarrollo
+desarrollo:x:1003:luis,marga
+
+berta@ejercicio:~$ getent group empleados
+empleados:x:1004:ana,jorge,luis,marga,berta
+```
+
+Para aplicar cambios en Berta:
+
+```bash
+berta@ejercicio:~$ exit
+cerrar sesión
+
+admn@ejercicio:~$ su - berta
+Contraseña: 
+
+berta@ejercicio:~$ 
+```
+
+## Creación de áreas y permisos
+
+### Crear directorio principal y áeas de trabajo
+
+Se crea el directorio `trabajo` y subdirectorios:
+
+```bash
+berta@ejercicio:~$ sudo mkdir /srv/trabajo
+
+berta@ejercicio:~$ sudo mkdir /srv/trabajo/contabilidad
+
+berta@ejercicio:~$ sudo mkdir /srv/trabajo/desarrollo
+
+berta@ejercicio:~$ sudo mkdir -p /srv/trabajo/entregas/ana
+
+berta@ejercicio:~$ sudo mkdir /srv/trabajo/entregas/jorge
+
+berta@ejercicio:~$ sudo mkdir /srv/trabajo/entregas/luis
+
+berta@ejercicio:~$ sudo mkdir /srv/trabajo/entregas/marga
+
+berta@ejercicio:~$ sudo mkdir /srv/trabajo/publica
+```
+
+Al crearlas con `sudo` ya cumple con la designación del propietario `root`.
+
+```bash
+berta@ejercicio:~$ ls -ld /srv/trabajo
+drwxr-xr-x 6 root root 4096 nov  9 23:54 /srv/trabajo
+```
+
+Se comprueba que además ya posee los permisos de directorio que se diseñó en el desarrollo de mecanismos. 
+
+No ocurre así con el subdirectorio `contabilidad`:
+
+```bash
+berta@ejercicio:~$ ls -ld /srv/trabajo/contabilidad
+drwxr-xr-x 2 root root 4096 nov  9 23:53 /srv/trabajo/contabilidad
+```
+### Grupo y permisos en *contabilidad*
+Hay que cambiarle el grupo y los permisos:
+
+```bash
+berta@ejercicio:~$ sudo chown root:contabilidad /srv/trabajo/contabilidad
+
+berta@ejercicio:~$ sudo chmod u=rwx,g=rwx,o= /srv/trabajo/contabilidad
+```
+
+Ahora debe configurarse ACL en `contabilidad`:
+- ACL de acceso para auditor.
+- ACL por defecto al grupo.
+- ACL por defecto para el auditor.
+
+Se aplica ACL de acceso al auditor:
+
+```bash
+berta@ejercicio:~$ sudo setfacl -m u:auditor:r-x /srv/trabajo/contabilidad
+```
+
+Se aplica ACL por defecto para permitir lectura y escritura al grupo de los nuevos archivos:
+
+```bash
+berta@ejercicio:~$ sudo setfacl -d -m g:contabilidad:rwX /srv/trabajo/contabilidad
+```
+
+Se aplica ACL por defecto para permitir lectura al auditor:
+
+```bash
+berta@ejercicio:~$ sudo setfacl -d -m u:auditor:r-X /srv/trabajo/contabilidad
+```
+
+Se comprueba:
+
+```bash
+berta@ejercicio:~$ getfacl /srv/trabajo/contabilidad
+getfacl: Eliminando '/' inicial en nombres de ruta absolutos
+# file: srv/trabajo/contabilidad
+# owner: root
+# group: contabilidad
+user::rwx
+user:auditor:r-x
+group::rwx
+mask::rwx
+other::---
+default:user::rwx
+default:user:auditor:r-x
+default:group::rwx
+default:group:contabilidad:rwx
+default:mask::rwx
+default:other::---
+```
+
+### Grupo y permisos en *desarrollo*
+
+Se aplica grupo y permisos:
+
+```bash
+berta@ejercicio:~$ sudo chown root:desarrollo /srv/trabajo/desarrollo
+
+berta@ejercicio:~$ sudo chmod u=rwx,g=rwx,o= /srv/trabajo/desarrollo
+```
+
+Se aplica ACL por defecto:
+
+```bash
+berta@ejercicio:~$ sudo setfacl -d -m g:desarrollo:rwX /srv/trabajo/desarrollo
+```
+
+Se comprueba:
+
+```bash
+berta@ejercicio:~$ getfacl /srv/trabajo/desarrollo
+getfacl: Eliminando '/' inicial en nombres de ruta absolutos
+# file: srv/trabajo/desarrollo
+# owner: root
+# group: desarrollo
+user::rwx
+group::rwx
+other::---
+default:user::rwx
+default:group::rwx
+default:group:desarrollo:rwx
+default:mask::rwx
+default:other::---
+```
+
+### Grupo y permiso en *entregas*
+
+Grupos y permisos:
+
+```bash
+berta@ejercicio:~$ sudo chown root:empleados /srv/trabajo/entregas
+
+berta@ejercicio:~$ sudo chmod u=rwx,g=rx,o= /srv/trabajo/entregas
+```
+
+Aplicación de grupo, permisos y ACL en la carpeta de Ana:
+
+```bash
+berta@ejercicio:~$ sudo chown ana:ana /srv/trabajo/entregas/ana
+
+berta@ejercicio:~$ sudo chmod u=rwx,g=,o= /srv/trabajo/entregas/ana
+
+berta@ejercicio:~$ sudo setfacl -m u:berta:rwx /srv/trabajo/entregas/ana
+
+berta@ejercicio:~$ sudo setfacl -d -m u:berta:rwX /srv/trabajo/entregas/ana
+
+berta@ejercicio:~$ sudo getfacl /srv/trabajo/entregas/ana
+getfacl: Eliminando '/' inicial en nombres de ruta absolutos
+# file: srv/trabajo/entregas/ana
+# owner: ana
+# group: ana
+user::rwx
+user:berta:rwx
+group::---
+mask::rwx
+other::---
+default:user::rwx
+default:user:berta:rwx
+default:group::---
+default:mask::rwx
+default:other::---
+```
+
+Aplicación de grupo, permisos y ACL en la carpeta de Jorge:
+
+```bash
+berta@ejercicio:~$ sudo chown jorge:jorge /srv/trabajo/entregas/jorge
+
+berta@ejercicio:~$ sudo chmod u=rwx,g=,o= /srv/trabajo/entregas/jorge
+
+berta@ejercicio:~$ sudo setfacl -m u:berta:rwx /srv/trabajo/entregas/jorge
+
+berta@ejercicio:~$ sudo setfacl -d -m u:berta:rwX /srv/trabajo/entregas/jorge
+
+berta@ejercicio:~$ sudo getfacl /srv/trabajo/entregas/jorge
+getfacl: Eliminando '/' inicial en nombres de ruta absolutos
+# file: srv/trabajo/entregas/jorge
+# owner: jorge
+# group: jorge
+user::rwx
+user:berta:rwx
+group::---
+mask::rwx
+other::---
+default:user::rwx
+default:user:berta:rwx
+default:group::---
+default:mask::rwx
+default:other::---
+```
+
+Aplicación de grupo, permisos y ACL en la carpeta de Luis:
+
+```bash
+berta@ejercicio:~$ sudo chown luis:luis /srv/trabajo/entregas/luis
+
+berta@ejercicio:~$ sudo chmod u=rwx,g=,o= /srv/trabajo/entregas/luis
+
+berta@ejercicio:~$ sudo setfacl -m u:berta:rwx /srv/trabajo/entregas/luis
+
+berta@ejercicio:~$ sudo setfacl -d -m u:berta:rwX /srv/trabajo/entregas/luis
+
+berta@ejercicio:~$ sudo getfacl /srv/trabajo/entregas/luis
+getfacl: Eliminando '/' inicial en nombres de ruta absolutos
+# file: srv/trabajo/entregas/luis
+# owner: luis
+# group: luis
+user::rwx
+user:berta:rwx
+group::---
+mask::rwx
+other::---
+default:user::rwx
+default:user:berta:rwx
+default:group::---
+default:mask::rwx
+default:other::---
+```
+
+Aplicación de grupo, permisos y ACL en la carpeta de Marga:
+
+```bash
+berta@ejercicio:~$ sudo chown marga:marga /srv/trabajo/entregas/marga
+
+berta@ejercicio:~$ sudo chmod u=rwx,g=,o= /srv/trabajo/entregas/marga
+
+berta@ejercicio:~$ sudo setfacl -m u:berta:rwx /srv/trabajo/entregas/marga
+
+berta@ejercicio:~$ sudo setfacl -d -m u:berta:rwX /srv/trabajo/entregas/marga
+
+berta@ejercicio:~$ sudo getfacl /srv/trabajo/entregas/marga
+getfacl: Eliminando '/' inicial en nombres de ruta absolutos
+# file: srv/trabajo/entregas/marga
+# owner: marga
+# group: marga
+user::rwx
+user:berta:rwx
+group::---
+mask::rwx
+other::---
+default:user::rwx
+default:user:berta:rwx
+default:group::---
+default:mask::rwx
+default:other::---
+```
+
+### Grupo y permiso de *publico*
+
+```bash
+berta@ejercicio:~$ sudo chown berta:berta /srv/trabajo/publica
+
+berta@ejercicio:~$ sudo chmod u=rwx,g=,o=rx /srv/trabajo/publica
+```
+
+## Comprobar mecánica
+
+### Prueba en carpeta ana
+
+Ana crea un archivo en su carpeta:
+
+```bash
+ana@ejercicio:~$ cd /srv/trabajo/entregas/ana
+
+ana@ejercicio:/srv/trabajo/entregas/ana$ nano archivo_ana.txt
+```
+
+Jorge intenta acceder y leer el archivo:
+
+```bash
+jorge@ejercicio:~$ cd /srv/trabajo/entregas/ana
+-bash: cd: /srv/trabajo/entregas/ana: Permiso denegado
+
+jorge@ejercicio:~$ cat /srv/trabajo/entregas/ana/archivo_ana.txt
+cat: /srv/trabajo/entregas/ana/archivo_ana.txt: Permiso denegado
+```
+
+Berta modifica archivo:
+
+```bash
+berta@ejercicio:~$ echo "revisado por berta" >> /srv/trabajo/entregas/ana/archivo_ana.txt
+```
+
+### Prueba en carpeta desarrollo
+
+Luis crea un archivo:
+
+```bash
+luis@ejercicio:~$ echo "Finalizado" >> /srv/trabajo/desarrollo/final.py
+```
+
+Marga lo modifica:
+
+```bash
+marga@ejercicio:~$ echo "Confirmo finalización" >> /srv/trabajo/desarrollo/final.py
+```
+
+Se comprueba:
+
+```bash
+marga@ejercicio:~$ cat /srv/trabajo/desarrollo/final.py
+Finalizado
+Confirmo finalización
+```
+
+Ana no debería poder leerlo:
+
+```bash
+marga@ejercicio:~$ getfacl /srv/trabajo/desarrollo/final.py
+getfacl: Eliminando '/' inicial en nombres de ruta absolutos
+# file: srv/trabajo/desarrollo/final.py
+# owner: luis
+# group: luis
+user::rw-
+group::rwx			#effective:rw-
+group:desarrollo:rwx		#effective:rw-
+mask::rw-
+other::---
+```
+
+Ana no debería poder leerlo:
+
+```bash
+ana@ejercicio:~$ cat /srv/trabajo/desarrollo/final.py
+cat: /srv/trabajo/desarrollo/final.py: Permiso denegado
+```
+
+### Prueba en contabilidad
+
+Ana crea un archivo:
+
+```bash
+ana@ejercicio:~$ echo "Comprobado" >> /srv/trabajo/contabilidad/factura.txt
+```
+
+Jorge modifica:
+
+```bash
+jorge@ejercicio:~$ echo "Confirmo comprobación" >> /srv/trabajo/contabilidad/factura.txt
+```
+
+Auditor lee:
+
+```bash
+auditor@ejercicio:~$ cat /srv/trabajo/contabilidad/factura.txt
+Comprobado
+Confirmo comprobación
+```
+
+Auditor intenta modificar (no debería poder):
+
+```bash
+auditor@ejercicio:~$ echo "Hay errores" >> /srv/trabajo/contabilidad/factura.txt
+-bash: /srv/trabajo/contabilidad/factura.txt: Permiso denegado
+```
+
+Auditor intenta crear un archivo (no debería poder):
+
+```bash
+auditor@ejercicio:~$ echo "Aviso de errores" >> /srv/trabajo/contabilidad/aviso.txt
+-bash: /srv/trabajo/contabilidad/aviso.txt: Permiso denegado
+```
+
+Luis intenta entrar en contabilidad (no debería poder):
+
+```bash
+luis@ejercicio:~$ cd /srv/trabajo/contabilidad
+-bash: cd: /srv/trabajo/contabilidad: Permiso denegado
+```
+
+Comprobar permisos archivo de Ana:
+
+```bash
+ana@ejercicio:~$ getfacl /srv/trabajo/contabilidad/factura.txt
+getfacl: Eliminando '/' inicial en nombres de ruta absolutos
+# file: srv/trabajo/contabilidad/factura.txt
+# owner: ana
+# group: ana
+user::rw-
+user:auditor:r-x		#effective:r--
+group::rwx			#effective:rw-
+group:contabilidad:rwx		#effective:rw-
+mask::rw-
+other::---
+```
+
+### Prueba en publica
+
+Berta crea un archivo:
+
+```bash
+berta@ejercicio:~$ echo "Aviso mañana" >> /srv/trabajo/publica/aviso.txt
+```
+
+Berta modifica el archivo:
+
+```bash
+berta@ejercicio:~$ echo "Sin novedad" >> /srv/trabajo/publica/aviso.txt
+```
+
+Ana lee el archivo:
+
+```bash
+ana@ejercicio:~$ cat /srv/trabajo/publica/aviso.txt
+Aviso mañana
+Sin novedad
+```
+
+Ana intenta modificarlo (no debería poder):
+
+```bash
+ana@ejercicio:~$ echo "De acuerdo" >> /srv/trabajo/publica/aviso.txt
+-bash: /srv/trabajo/publica/aviso.txt: Permiso denegado
+```
+
+Ana crea un archivo (no debería poder):
+
+```bash
+ana@ejercicio:~$ echo "Aviso recibido" >> /srv/trabajo/publica/ok.txt
+-bash: /srv/trabajo/publica/ok.txt: Permiso denegado
+```
+
+Auditor intenta leer:
+
+```bash
+auditor@ejercicio:~$ cat /srv/trabajo/publica/aviso.txt
+Aviso mañana
+Sin novedad
 ```
