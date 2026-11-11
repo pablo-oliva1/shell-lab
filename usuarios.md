@@ -19,6 +19,40 @@ Dejar una máquina virtual lista para el trabajo diario de un grupo de trabajo p
 5. El auditor puede leer la zona pública y la de contabilidad pero sin modificar nada, y sin acceder a ninguna otra zona.
 6. Berta puede administrar todo el espacio de trabajo con `sudo`.
 
+### Pasos
+
+1. Diseño
+    1. Tabla de usuarios y grupos
+    2. Matriz de accesos
+    3. Estructura de los directorios
+    4. Mecanismos de cada zona
+2. Configuración de VM
+    1. Creación de la administradora
+    2. Actualización del sistema
+    3. Configuración base de la VM
+    4. Instalación y comprobación de herramientas
+3. Gestión de paquetes
+    1. Búsqueda
+    2. Consulta de información
+    3. Instalación y actualización
+    4. Eliminación
+4. Usuarios y grupos
+    1. Creación de grupos
+    2. Creación de usuarios
+    3. Asignación de usuarios a grupos
+5. Creación de áreas y permisos
+    1. Creación del directorio principal y áreas de trabajo
+    2. Grupo, permisos y ACL de *contabilidad*
+    3. Grupo, permisos y ACL de *desarrollo*
+    4. Permisos de *entregas* y de la subcarpeta de cada empleado
+    5. Grupo y permisos de *publica*
+6. Comprobación de accesos
+    1. Entregas
+    2. Desarrollo
+    3. Contabilidad
+    4. Publica
+7. Comprobación de persistencia
+
 ## Diseño
 
 ### Tabla de usuarios y grupos
@@ -63,7 +97,7 @@ Se va a montar la carpeta raíz en `/srv`:
 ### Mecanismos
 
 Para el directorio general *trabajo*:
-- El propietario es `root` y el grupo `empleados`.
+- El propietario es `root`.
 - Permisos de directorio `rwxr-xr-x`.
 
 En el directorio *contabilidad*:
@@ -472,7 +506,7 @@ berta@ejercicio:~$
 
 ## Creación de áreas y permisos
 
-### Crear directorio principal y áeas de trabajo
+### Crear directorio principal y áreas de trabajo
 
 Se crea el directorio `trabajo` y subdirectorios:
 
@@ -718,7 +752,7 @@ default:mask::rwx
 default:other::---
 ```
 
-### Grupo y permiso de *publico*
+### Grupo y permiso de *publica*
 
 ```bash
 berta@ejercicio:~$ sudo chown berta:berta /srv/trabajo/publica
@@ -899,4 +933,116 @@ Auditor intenta leer:
 auditor@ejercicio:~$ cat /srv/trabajo/publica/aviso.txt
 Aviso mañana
 Sin novedad
+```
+
+## Comprobar persistencia
+
+Se hace un reinicio:
+
+```bash
+berta@ejercicio:~$ sudo reboot now
+```
+
+Y se comprueba persistencia:
+
+```bash
+berta@ejercicio:~$ ls -ld /srv/trabajo /srv/trabajo/publica
+drwxr-xr-x 6 root  root  4096 nov  9 23:54 /srv/trabajo
+drwx---r-x 2 berta berta 4096 nov 10 23:44 /srv/trabajo/publica
+
+berta@ejercicio:~$ sudo getfacl -p /srv/trabajo/contabilidad /srv/trabajo/desarrollo /srv/trabajo/entregas /srv/trabajo/entregas/*
+[sudo] contraseña para berta: 
+# file: /srv/trabajo/contabilidad
+# owner: root
+# group: contabilidad
+user::rwx
+user:auditor:r-x
+group::rwx
+mask::rwx
+other::---
+default:user::rwx
+default:user:auditor:r-x
+default:group::rwx
+default:group:contabilidad:rwx
+default:mask::rwx
+default:other::---
+
+# file: /srv/trabajo/desarrollo
+# owner: root
+# group: desarrollo
+user::rwx
+group::rwx
+other::---
+default:user::rwx
+default:group::rwx
+default:group:desarrollo:rwx
+default:mask::rwx
+default:other::---
+
+# file: /srv/trabajo/entregas
+# owner: root
+# group: empleados
+user::rwx
+group::r-x
+other::---
+
+# file: /srv/trabajo/entregas/ana
+# owner: ana
+# group: ana
+user::rwx
+user:berta:rwx
+group::---
+mask::rwx
+other::---
+default:user::rwx
+default:user:berta:rwx
+default:group::---
+default:mask::rwx
+default:other::---
+
+# file: /srv/trabajo/entregas/jorge
+# owner: jorge
+# group: jorge
+user::rwx
+user:berta:rwx
+group::---
+mask::rwx
+other::---
+default:user::rwx
+default:user:berta:rwx
+default:group::---
+default:mask::rwx
+default:other::---
+
+# file: /srv/trabajo/entregas/luis
+# owner: luis
+# group: luis
+user::rwx
+user:berta:rwx
+group::---
+mask::rwx
+other::---
+default:user::rwx
+default:user:berta:rwx
+default:group::---
+default:mask::rwx
+default:other::---
+
+# file: /srv/trabajo/entregas/marga
+# owner: marga
+# group: marga
+user::rwx
+user:berta:rwx
+group::---
+mask::rwx
+other::---
+default:user::rwx
+default:user:berta:rwx
+default:group::---
+default:mask::rwx
+default:other::---
+
+berta@ejercicio:~$ sudo -u jorge cat /srv/trabajo/contabilidad/factura.txt
+Comprobado
+Confirmo comprobación
 ```

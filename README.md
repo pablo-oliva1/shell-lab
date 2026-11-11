@@ -31,13 +31,11 @@ El objetivo es adquirir y perfeccionar habilidades en entornos shell, crear herr
 
 ### Referencias
 
-1. Bash Shell.
-    - [dmesg(1) — Linux manual page](https://man7.org/linux/man-pages/man1/dmesg.1.html), en *man7.org*.
-    - [NTFS3](https://docs.kernel.org/filesystems/ntfs3.html), en *docs.kernel.org*.
-    - [ntfsfix(8)](https://manpages.ubuntu.com/manpages/resolute/man8/ntfsfix.8.html), paquete ntfs-3g, en *manpages.ubuntu.com*.
-2. Fish Shell.
-    - [Functions](https://fishshell.com/docs/current/language.html#functions), en *fishshell.com*.
-    - [Conditions](https://fishshell.com/docs/current/language.html#conditions), en *fishshell.com*.
+- [dmesg(1) — Linux manual page](https://man7.org/linux/man-pages/man1/dmesg.1.html), en *man7.org*.
+- [NTFS3](https://docs.kernel.org/filesystems/ntfs3.html), en *docs.kernel.org*.
+- [ntfsfix(8)](https://manpages.ubuntu.com/manpages/resolute/man8/ntfsfix.8.html), paquete ntfs-3g, en *manpages.ubuntu.com*.
+- [Functions](https://fishshell.com/docs/current/language.html#functions), en *fishshell.com*.
+- [Conditions](https://fishshell.com/docs/current/language.html#conditions), en *fishshell.com*.
     
 
 ## Licencia
